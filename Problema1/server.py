@@ -2,12 +2,13 @@ import socket
 import threading
 import time
 
-SERVER_IP = "172.20.160.1"
+SERVER_IP = socket.gethostbyname(socket.gethostname())
+print (socket.gethostbyname(socket.gethostname()))
 PORT = 5050
 ADDR = (SERVER_IP, PORT)
 FORMATO = 'utf-8'
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # STREAM TCP/ DGRAM UDP 
 server.bind(ADDR)
 
 conexoes = []

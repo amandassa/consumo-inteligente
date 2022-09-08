@@ -4,7 +4,7 @@ import time
 
 PORT = 5050
 FORMATO = 'utf-8'
-SERVER = "172.20.160.1"
+SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

@@ -1,36 +1,32 @@
 class Hidrometro:
-    def __init__(self, matricula, funcionamento, statusConta, endereco, vazao):
+    def __init__(self, matricula, funcionamento, endereco, vazao):
         self.matricula = matricula
         self.funcionamento= funcionamento
-        self.statusConta= statusConta
         self.endereco= endereco
         self.vazao= vazao
     
     def Ativar(self):
-        self.funcionamento = "Ativado";
-        print(self.funcionamento);
+        self.funcionamento = True;
 
     def Desativar(self):
-        self.funcionamento = "Desativado";
-        print(self.funcionamento);
+        self.funcionamento = False;
 
-    def Status(self):
-        print(self.funcionamento);
+    def getMatricula(self):
+        return self.matricula;
 
-    def Conta(self):
-        print(self.statusConta);
+    def getStatus(self):
+        return self.funcionamento;
 
-    def Endereco(self):
-        print(self.endereco);
+    def getEndereco(self):
+        return self.endereco;
 
-    def Vazao(self):
-        print(self.vazao);
+    def getVazao(self):
+        return self.vazao;
 
-hidrometro1 = Hidrometro("1100","on","pago","Avenida Coronel Plinio da Silva Gomes","4 m³/s");
+hidrometro1 = Hidrometro("1100",True,"Avenida Coronel Plinio da Silva Gomes","4 m³/s");
 
 hidrometro1.Ativar();
+print(hidrometro1.getStatus());
 hidrometro1.Desativar();
-hidrometro1.Vazao();
-
-#visando monitorar o abastecimento de água, medir o consumo de cada cliente, gerar a fatura a ser paga, bem como alertar sobre
-#um possível vazamento de água em determinada zona da cidade. 
+print(hidrometro1.getStatus());
+hidrometro1.getVazao();
