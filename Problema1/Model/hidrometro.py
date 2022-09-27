@@ -1,4 +1,4 @@
-class Hidrometro:
+class Hidrometro():
     def __init__(self, matricula, endereco, funcionamento, vazao, consumo, vazamento):
         #identificação
         self.matricula = matricula;
@@ -48,7 +48,7 @@ class Hidrometro:
     #---------------------------------------------------------------------------------
     ''' Funções '''
     #função que sinaliza que há vazamento
-    def vazamento(self):
+    def vazamentos(self):
         if (self.vazao > self.vazaoPadrao):
             self.vazamento = True;
         return (self.vazamento, self.endereco)
