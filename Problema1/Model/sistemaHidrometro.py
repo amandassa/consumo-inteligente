@@ -29,6 +29,7 @@ def enviaDados(consumo, funcionamento):
             time.sleep(10)                                         #pausa para envio de dados
             consumo = consumo+1;
             msg = str(consumo)
+            if funcionamento == False: break
             if not msg: break
         udp.close()
     else:
@@ -46,7 +47,7 @@ def recebeDados(hidrometro):
     while(True):
         print("Esperando por conexões:")
         con, cliente = tcp.accept()
-        print("Concetado por: ", cliente)
+        print("Conctado por: ", cliente)
         try:
             while True:			
                 msg = con.recv(1024).decode(FORMATO)
@@ -61,8 +62,7 @@ def recebeDados(hidrometro):
                     if not msg: break
         
 
-                if(msg.startswith("Hidrometro=")):    
-                    print(funcionamento)
+                if(msg.startswith("Hidrometro=")): 
                     if(funcionamento == "ligado" or funcionamento == "Ligado" or funcionamento == "funcionando" or funcionamento == "Funcionando"or funcionamento == "ativar" or funcionamento == "Ativar" or funcionamento == "ligar" or funcionamento == "Ligar"):
                         hidrometro = True
                         print("O hidrômetro encontra-se no estado: ",hidrometro)
@@ -77,22 +77,12 @@ def recebeDados(hidrometro):
             print ('Finalizando conexao do cliente',cliente)            #finaliza a conexão com o cliente
             print("O hidrômetro encontra-se no estado atual de: ",hidrometro)
 
-#--------------------------------------------------------------------------------  
-'''
-#função que recebe informações do hidrometro
-def aumentaConsumo(hidro, func):
-    consumo1 = 0
-    while True:
-        consumo1 = consumo1+1;
-        func(hidro, consumo1);'''
-
 #--------------------------------------------------------------------------------
 def iniciar():
-    hidrometro = Hidrometro(121212, "Av. José Botelho, 123", True, 3, 0, False)
-    thread1 = threading.Thread( target=enviaDados, args=(hidrometro.consumo,hidrometro.funcionamento) )
-    thread2 = threading.Thread( target=recebeDados, args=(hidrometro.funcionamento,))
-    #thread3 = threading.Thread(target=aumentaConsumo,args=(hidrometro, hidrometro.setConsumo))
-    
+    hidrometro =  Hidrometro(121212, "Av. José Botelho, 123", False, 3, 5, False)
+    thread1 = threading.Thread( target=enviaDados, args=(hidrometro.getConsumo(),hidrometro.getStatus()))
+    thread2 = threading.Thread( target=recebeDados, args=(hidrometro.getStatus(),))
+    #thread3 = threading.Thread( target=recebeDados, args=(hidrometro.getStatus(),))
     thread1.start()                               
     thread2.start()                         
     #thread3.start()
