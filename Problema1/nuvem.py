@@ -1,3 +1,4 @@
+from http import client
 import socket
 import threading
 import time
@@ -38,11 +39,14 @@ def recebeDados():
     udp.bind(orig)
     try:
         while True:
-            msg, cliente = udp.recvfrom(1024)
-            print (cliente, msg)
-            time.sleep(10) #pausa para receber dados
+            msg, cliente = udp.recvfrom(1024) #Recebe em bites a mensagem e o client
+            print ("Consumo: ", msg.decode(FORMATO)) #Recebe em bites, então necessário uma conversão
+            time.sleep(6) #pausa para receber dados
+            if not msg: break
             
     finally:
+        
+        print ("Fechada a conexão com: ", cliente) 
         udp.close()
 #--------------------------------------------------------------------------------
 def iniciar():
