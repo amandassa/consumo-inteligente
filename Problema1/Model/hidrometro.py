@@ -56,4 +56,4 @@ class Hidrometro():
     #Função para ativar ou desativar o hidrometro
     def novoStatus(self, status):
         if status == True: self.funcionamento = True;
-        else: self.funcionamento = True;
+        else: self.funcionamento = False;

@@ -30,7 +30,9 @@ def enviaDados():
                 udp.sendto(msg.encode('utf-8'),ADDR_C)                  #conversão mensagem 
                 time.sleep(6)                                         #pausa para envio de dados
                 msg = str(hidrometro.getConsumo())
-                if hidrometro.getStatus() == False: break
+                if (hidrometro.getStatus() == False):
+                    print("Seu hidrômetro foi bloqueado!");
+                    break
                 if not msg: break
             udp.close()
         else:
