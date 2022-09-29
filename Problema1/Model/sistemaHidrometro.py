@@ -1,5 +1,5 @@
 from hidrometro import Hidrometro #importa Hidrometro para transforma-lo em um client socket
-# netstat -an | findstr /i 8000
+
 #Importação de bibliotecas
 import socket
 import threading
@@ -9,18 +9,19 @@ import time
 SERVER = "127.0.0.1"
 
 #Criação de constante de porta para situação client e situação serve
-PORT_Client = 8000 #Porta
-PORT_Server = 8080
+PORT_CLIENT = 8090 #Porta
+PORT_SERVER = 8080
 
 #Constante para formato utf-8
 FORMATO = 'utf-8' 
 
+#Inicia um hidrometro
 hidrometro =  Hidrometro(121212, "Av. José Botelho, 123", False, 3, 5, False)
 #--------------------------------------------------------------------------------
 #função que envia os dados do hidrometro
 def enviaDados():
     #UDP - Envio de dados
-    ADDR_C = (SERVER, PORT_Client)    #Endereço
+    ADDR_C = (SERVER, PORT_CLIENT)    #Endereço
     udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)     #configuração UDP
     while True:
         if(hidrometro.getStatus() == True):
@@ -44,7 +45,7 @@ def enviaDados():
 def recebeDados():
     #TCP - Recebimento de dados
     tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         #conexão TCP
-    ADDR_S = (SERVER, PORT_Server) #Endereço  
+    ADDR_S = (SERVER, PORT_SERVER) #Endereço  
     tcp.bind(ADDR_S)
     tcp.listen(10)
     
@@ -60,6 +61,7 @@ def recebeDados():
                     funcionamento = mensagem_separada[1]
                     print("Funcionamento: ",funcionamento)
                     print("Mensagem: ",msg)
+                    tcp.sendall(b'Recebido!')
                 except:
                     print("Mensagem inválida.")
                 finally:
