@@ -1,10 +1,12 @@
+from ast import While
+from http import client
 import socket
 import threading
 import time
 import http.server 
 
 FORMATO = 'utf-8' 
-SERVER = "127.0.0.1"
+SERVER = "172.16.103.234"
 PROTOCOL= "HTTP/1.0"
 #--------------------------------------------------------------------------------
 #função que bloqueia ou desbloqueia hidrometro
@@ -17,9 +19,19 @@ def funcionamento():
             tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         #conexão TCP
             tcp.connect(ADDR_S) 
             try:
-                mensagem = input('Para sair use CTRL+X e pressione enter\nDigite se deseja Ativar ou Desativar o hidrômetro: ')
-                        
-                enviar = ("Hidrometro="+ mensagem)
+                n= 0;
+                while (n != 1):
+                    escolha = input("Digite 1-> para Bloqueio/Desbloqueio do hidrometro\n Digite 2->Aumento de Vazão\n")
+                    if(escolha == '1'):
+                        mensagem = input('Digite se deseja Ativar ou Desativar o hidrômetro: ')
+                        enviar = ("Hidrometro="+ mensagem)
+                        n=1
+                    elif(escolha == '2'):
+                        mensagem = input('Digite a nova vazao do hidrômetro: ')
+                        enviar = ("Vazao="+ mensagem)
+                        n=1
+                    else:
+                        print("Opção Inválida")
                 tcp.send(enviar.encode(FORMATO))
                 time.sleep(10)                                         #pausa para envio de dados
                 respostaSistema = tcp.recv(1024)
@@ -37,15 +49,15 @@ def funcionamento():
 #função que recebe informações do hidrometro
 def recebeDados():
     #UDP - Recebimento de dados
-    HOST = ''              # Endereco IP do Servidor
     PORT = 8090
     udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     udp.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    orig = (HOST, PORT)
+    orig = (SERVER, PORT)
     udp.bind(orig)
     try:
         while True:
             msg, cliente = udp.recvfrom(1024) #Recebe em bites a mensagem e o client
+            print ("Cliente: ", cliente) #Recebe em bites, então necessário uma conversão
             print ("Consumo: ", msg.decode(FORMATO)) #Recebe em bites, então necessário uma conversão
             time.sleep(6) #pausa para receber dados
             if not msg: break

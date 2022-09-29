@@ -4,9 +4,10 @@ from hidrometro import Hidrometro #importa Hidrometro para transforma-lo em um c
 import socket
 import threading
 import time
+import random
 
 #Criação de constante de localhost como ip de servidor
-SERVER = "127.0.0.1"
+SERVER = "172.16.103.234"
 
 #Criação de constante de porta para situação client e situação serve
 PORT_CLIENT = 8090 #Porta
@@ -14,9 +15,9 @@ PORT_SERVER = 8080
 
 #Constante para formato utf-8
 FORMATO = 'utf-8' 
-
+MATRICULA = random.random()
 #Inicia um hidrometro
-hidrometro =  Hidrometro(121212, "Av. José Botelho, 123", False, 3, 5, False)
+hidrometro =  Hidrometro(MATRICULA, "Av. José Botelho, 123", False, 3, 5, False)
 #--------------------------------------------------------------------------------
 #função que envia os dados do hidrometro
 def enviaDados():
@@ -37,7 +38,7 @@ def enviaDados():
                 if not msg: break
             udp.close()
         else:
-            print("Seu hidrômetro encontra-se bloqueado.")
+            print("Seu hidrômetro encontra-se bloqueado. Matricula: ", hidrometro.getMatricula())
             time.sleep(6) #Tempo para uma nova verificação    
 #--------------------------------------------------------------------------------  
  
@@ -59,7 +60,6 @@ def recebeDados():
                 try:
                     mensagem_separada = msg.split("=")
                     funcionamento = mensagem_separada[1]
-                    print("Funcionamento: ",funcionamento)
                     print("Mensagem: ",msg)
                     tcp.sendall(b'Recebido!')
                 except:
@@ -78,6 +78,9 @@ def recebeDados():
                         
                     else:
                         print("Talvez tenha escrito errado, por favor tente novamente");
+                elif(msg.startswith("Vazao=")):
+                    vazao=int(funcionamento)
+                    hidrometro.setVazao(vazao)
         except:
             print("Sem conexão")
         finally:	
@@ -98,14 +101,26 @@ def atualizaConsumo():
             time.sleep(6)   
 
 #--------------------------------------------------------------------------------
+def verificaVazamento():
+    while True:
+        if (hidrometro.vazamentos() == True):
+            print("Alerta de vazamento! No hidrometro: ", hidrometro.getMatricula())
+        else:
+            print("Sem vazamentos");
+        time.sleep(15)
+#--------------------------------------------------------------------------------
 def iniciar():
     
     thread1 = threading.Thread(target=enviaDados)
     thread2 = threading.Thread(target=recebeDados)
     thread3 = threading.Thread(target=atualizaConsumo)
+    thread4 = threading.Thread(target=verificaVazamento)
 
     thread1.start()                               
     thread2.start()                             
-    thread3.start()                           
+    thread3.start()      
+    thread4.start()      
+    
+
 #--------------------------------------------------------------------------------------
 iniciar()

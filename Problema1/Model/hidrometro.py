@@ -51,7 +51,10 @@ class Hidrometro():
     def vazamentos(self):
         if (self.vazao > self.vazaoPadrao):
             self.vazamento = True;
-        return (self.vazamento, self.endereco)
+            return True
+        else:
+            self.vazamento = False;
+            return False
 
     #Função para ativar ou desativar o hidrometro
     def novoStatus(self, status):
