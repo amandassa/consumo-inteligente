@@ -1,5 +1,3 @@
-from ast import While
-from http import client
 import socket
 import threading
 import time
