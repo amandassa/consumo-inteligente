@@ -1,5 +1,5 @@
 class Hidrometro():
-    def __init__(self, matricula, endereco, funcionamento, vazao, consumo, vazamento):
+    def __init__(self, matricula, endereco, funcionamento, vazao, consumo, vazamento, valorMax):
         #identificação
         self.matricula = matricula;
         self.endereco= endereco;
@@ -10,6 +10,7 @@ class Hidrometro():
         self.vazao= vazao;
         self.vazamento = vazamento;
         self.vazaoPadrao = 3;
+        self.valorMax = valorMax;
     #--------------------------------------------------------------------
     ''' Bloco de Get '''
     def getMatricula(self):
@@ -29,6 +30,13 @@ class Hidrometro():
 
     def getVazamento(self):
         return self.vazamento;
+
+    def getVazaoPadrao(self):
+        return self.vazaoPadrao;
+
+    def getValorMax(self):
+        return self.valorMax;
+
     #--------------------------------------------------------------------
     ''' Bloco de Set '''
     def setMatricula(self, matricula):
@@ -45,18 +53,39 @@ class Hidrometro():
 
     def setVazamento(self, vazamento):
         self.vazamento = vazamento;
+        
+    def setVazaoPadrao(self, vazaoPadrao):
+        self.vazaoPadrao = vazaoPadrao;
+    
+    def setValorMax(self, valorMax):
+        self.valorMax = valorMax;
     #---------------------------------------------------------------------------------
-    ''' Funções '''
-    #função que sinaliza que há vazamento
+    ''' ---------------------------------Funções--------------------------------- '''
+    #Função que sinaliza que há vazamento
     def vazamentos(self):
         if (self.vazao > self.vazaoPadrao):
             self.vazamento = True;
             return True
         else:
             self.vazamento = False;
-            return False
+            return False    
+
+    #Função que bloqueia caso a vazão esteja maior que o valor máximo atribuído
+    def bloqueioInsta(self):
+        if (self.vazao > self.valorMax):
+            self.novoStatus(self, False)
 
     #Função para ativar ou desativar o hidrometro
     def novoStatus(self, status):
         if status == True: self.funcionamento = True;
         else: self.funcionamento = False;
+    
+    #Função para atualização do consumo
+    def atualizaConsumo(self): 
+        if self.funcionamento == True:
+                consumo = self.getConsumo() #Salva em uma variavel o valor
+                vazao = self.getVazao() #Salva em uma variavel o valor
+                novoValor = consumo + vazao; #Soma consumo + vazão
+                self.setConsumo(novoValor); #Adiciona o novo valor no hidrometro
+
+    
