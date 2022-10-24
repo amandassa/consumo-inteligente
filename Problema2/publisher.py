@@ -1,5 +1,3 @@
-# python 3.6
-
 import random
 import time
 
@@ -11,10 +9,11 @@ port = 1883
 topic = "python/mqtt"
 # generate client ID with pub prefix randomly
 client_id = f'python-mqtt-{random.randint(0, 1000)}'
-# username = 'emqx'
-# password = 'public'
+# Alterar futuramente para credenciais do broker central
+username = 'emqx'
+password = 'public'
 
-def connect_mqtt(username, password):
+def connect_mqtt() -> mqtt_client:
     def on_connect(client, userdata, flags, rc):
         if rc == 0:
             print("Connected to MQTT Broker!")
