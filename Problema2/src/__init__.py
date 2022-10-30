@@ -22,6 +22,8 @@ def handle_mqtt_message(client, userdata, message):
         )
     match dict.get('topic'):
         case 'hidrometro':
+            print()
             # chamar função para salvar no db e ordenar
         case 'nuvem':
+            print()
             # chamar função que envia dados necessarios para a nuvem

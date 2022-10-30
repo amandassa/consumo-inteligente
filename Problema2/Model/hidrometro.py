@@ -1,9 +1,10 @@
 class Hidrometro():
-    def __init__(self, matricula, endereco, funcionamento, vazao, consumo, vazamento, valorMax):
+    def __init__(self, matricula, endereco, contaPaga, funcionamento, vazao, consumo, vazamento, valorMax):
         #identificação
         self.matricula = matricula;
         self.endereco= endereco;
         #funcionamento
+        self.contaPaga = contaPaga;
         self.funcionamento= funcionamento;
         self.consumo= consumo;
         #vazamento
@@ -18,6 +19,9 @@ class Hidrometro():
 
     def getEndereco(self):
         return self.endereco;
+
+    def getContaPaga(self):
+        return self.contaPaga;
 
     def getStatus(self):
         return self.funcionamento;
@@ -45,6 +49,9 @@ class Hidrometro():
     def setEndereco(self,endereco):
         self.endereco = endereco;
 
+    def setContaPaga(self, contaPaga):
+        self.contaPaga = contaPaga;
+
     def setConsumo(self, consumo):
         self.consumo = consumo;
 
@@ -70,10 +77,17 @@ class Hidrometro():
             self.vazamento = False;
             return False    
 
+    #Função que bloqueia caso a conta não esteja paga
+    def conta(self):
+        if self.contaPaga == False: self.funcionamento = False;
+
     #Função que bloqueia caso a vazão esteja maior que o valor máximo atribuído
     def bloqueioInsta(self):
         if (self.vazao > self.valorMax):
-            self.novoStatus(self, False)
+                self.novoStatus(self, False)
+        else:
+            if (self.contaPaga == True):
+                self.novoStatus(self, True)
 
     #Função para ativar ou desativar o hidrometro
     def novoStatus(self, status):
@@ -88,4 +102,19 @@ class Hidrometro():
                 novoValor = consumo + vazao; #Soma consumo + vazão
                 self.setConsumo(novoValor); #Adiciona o novo valor no hidrometro
 
+
+    ''' Futuras funções
+    def mediaConsumo(ConsumoUsers, SomaUsers):
+        mediaConsumo = ConsumoUsers/SomaUsers;
+        return mediaConsumo; 
     
+    def bloqueioMedia(self, mediaConsumo):
+        if (self.consumo > mediaConsumo):
+            if(self.funcionamento == True):
+                self.novoStatus(self, False);
+        else:
+            if(funcionamento == False):
+                if (self.contaPaga == True):
+                    if (self.vazao < self.valorMax):
+                        self.novoStatus(self, True);
+        '''

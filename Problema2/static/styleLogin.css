@@ -40,6 +40,7 @@ body{
     padding-left: 30px;
     height: 42px;
 }   
+
 .conteudo{
     display: flex;
     flex-direction: column;
@@ -49,27 +50,41 @@ body{
     align-self: auto;
     justify-content: center;
 }
-.titulo{
-color: #FFFFFF;
-font-family: 'Righteous', cursive;
-font-weight: 400;
-font-size: 40px;
-}
-.areaDaBusca{            
+.conteudo-principal{
     background: rgba(194, 220, 238, 1);
     max-width: 350px;
-    min-width: 30vw;
+    min-width: 10vw;
     min-height: 40vh;
     box-shadow: 5px 5px 15px rgba(0, 0, 0, 0,2) ;
     border-radius: 8px;
     padding: 1rem;
 }
-.busca{
+.conteudo-principal-titulo{            
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 90px;
+    padding-bottom: 10px;
+}
+.login{
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+.tituloConteudo{
     color: rgba(81, 106, 155, 1);
     font-family: 'Righteous', cursive;
     font-weight: 400;
-    font-size: 20px;
+    font-size: 40px;
 }
+.link{
+    font-family: 'Sarala', sans-serif, px;
+    color: rgba(81, 106, 155, 1);
+    display: flex;
+    justify-content:center;
+    font-size: 13px;
+}
+
 .input-field{
     display: flex;
     flex-direction: column;
@@ -99,39 +114,12 @@ form input[type="submit"]{
     border-radius: 4px;
     transition: all 0.3s ease;
 }
+
 form input[type="submit"]:hover{
     letter-spacing: 0.5px;
     background: linear-gradient(to right,rgba(81, 106, 155, 1),rgba(81, 106, 155, 0));
 }
-.resultado{
-    display: flex;
-    margin: auto;
-}
-.tabela{
-    width: 100%;
-    text-align: center;
-}
-.tabela thead tr th:nth-child(1){width: 60%;}
-.tabela thead tr th:nth-child(2){width: 40%;}
-.tabela tbody tr td:nth-child(1){width: 60%;}
-.tabela tbody tr td:nth-child(2){width: 40%;}
 
-.corpo{
-    background-color: #516A9B;
-}
-.linha1{
-    color: rgba(81, 106, 155, 1);
-    font-family: 'Righteous', cursive;
-    font-weight: 400;
-    font-size: 30px;
-}
-.linha{
-    text-align: center;
-    color: #FFFFFF;
-    font-family:'Sarala', sans-serif;
-    font-weight: 300;
-    font-size: 15px;
-}
 .rodape{
     position: relative;
     background: linear-gradient(to right,#516A9B, #24232F);

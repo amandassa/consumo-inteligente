@@ -6,18 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Seja bem-vindo a página ínicial do consumo de água.">
     <title>Página Inicial</title>
-    <link rel="stylesheet" type="text/css" href="/Problema1/Public/CSS/style.css" rel= "stylesheet">
-    <link rel="shortcut icon" href="/Problema1/Public/Images/gotas 1.svg" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'style.css')}}" rel= "stylesheet">
+    <link rel="shortcut icon" href="{{ url_for('static', filename = 'gotas 1.svg')}}" type="image/x-icon">
 </head>
 
 <body>
 
     <header class="cabecalho">
-        <img class="iconeEcompJr" src="/Problema1/Public/Images/gotas 1.svg" alt="icone da MI-REDES">
+        <img class="iconeMI" src="{{ url_for('static', filename = 'gotas 1.svg')}}" alt="icone da MI-Concorrência e Conectividade">
         <nav class="linkCabecalho">
-            <a class="linkCabecalhoItem" href="http://127.0.0.1:8000/Problema1/View/pagWeb.html">Início</a>
-            <a class="linkCabecalhoItem" href="http://127.0.0.1:8000/Problema1/View/pagWeb.html">Entrar</a>
-            <a class="linkCabecalhoItem" href="http://127.0.0.1:8000/">Sair</a>
+            <a class="linkCabecalhoItem" href="">Início</a>
+            <a class="linkCabecalhoItem" href="">Entrar</a>
         </nav>
     </header>
 
@@ -29,7 +28,7 @@
                 <form class="Busca" action="">
                     <h1 class="tituloConteudo">Busca</h1>
                     <div class="input-field">
-                        <input type="text" name="membro" id="membro" placeholder="Coloque a matricula">
+                        <input type="text" name="hidrometro" id="hidrometro" placeholder="Digite a quantidade de hidrometros:">
                         <div class="underline"></div>
                     </div>
                     <input class="botaoPesquisar" type="submit" value="Iniciar Pesquisa">
@@ -44,7 +43,6 @@
                             <th class="linha1">Consumo</td>
                         </tr>
                     </thead>
-                    
                     <tbody class="corpo">
                         <tr class="coluna">
                             <td class="linha">11122266</td>
@@ -61,7 +59,7 @@
     </main>
 
     <footer class="rodape">
-        <img class="rodapeImagem" src="/Problema1/Public/Images/redes.svg" alt="MI - Redes" height="40">
+        <img class="rodapeImagem" src="{{ url_for('static', filename = 'redes.svg')}}" alt="MI - Concorrência e Conectividade" height="40">
     </footer>
 
 </body>
