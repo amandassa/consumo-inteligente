@@ -1,0 +1,6 @@
+FROM openjdk:11
+EXPOSE 1885
+WORKDIR /hidrometro
+COPY target/hidrometro.jar /hidrometro/
+COPY libs/json-20220320.jar /hidrometro/
+ENTRYPOINT [ "java", "-jar", "hidrometro.jar" ]
