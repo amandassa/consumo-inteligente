@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
@@ -6,19 +6,21 @@ app = Flask(__name__)
 #function
 #template
 
-@app.route("/")
+@app.route("/login", methods = ['GET', 'POST'])
 def login():
+    data = request.form
+    print (data)
     return render_template ('login.html')
 
-@app.route("/GET")
+@app.route("/GET", methods = ['GET'])
 def pagWeb():
     return render_template ('pagWeb.html')
 
-@app.route("/index")
+@app.route("/",  methods = ['GET'])
 def index():
     return render_template ('index.html')
 
-@app.route("/GET/<param>")   #requisicao para obter n hidrometros de maior consumo
+@app.route("/GET/<param>",  methods = ['GET'])   #requisicao para obter n hidrometros de maior consumo
 def maiorConsumo(param):
     # chamar funcao maiorConsumo
     #usar o retorno da funçao na resposta ao cliente web
