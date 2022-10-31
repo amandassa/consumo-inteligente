@@ -89,13 +89,29 @@ def subscribe (client, topico):
                         publish(client, f'{hidrometros["topicPub"]}/bloqueio/{codigoH}', '{"bloqueado":true}')
                 case _:
                     pass
-        else:
+        else:   # caso a mensagem venha da nuvem
             match topico[1]:
                 case 'consumo':
                     # deve enviar a lista com os 10 hidrometros de maior consumo daquele nó
                     # TODO busca e ordenação no banco para os n hidrometros de maior consumo.
+                    ultimoRegistro = []
+                    # iterar sobre todas as chaves de hidroDB (todos os hidrometros)
+                    for k in hidroDB.keys():
+                        # pegar o registro mais recente (indice 0) de cada um deles -- cada registro é um dicionario
+                        ultimoRegistro.append(hidroDB[k][0])
                     
-                    publish(client, f'nuvem/consumo/{client._client_id}', 'lista10maiores')
+                    maiorConsumo = ultimoRegistro[0]['consumo']
+                    maioresConsumos = []
+                    for i in ultimoRegistro:
+                        if ultimoRegistro[i]['consumo'] > maiorConsumo:
+                            maiorConsumo = ultimoRegistro[i]['consumo']
+                            # selecionar apenas os n registros com maior consumo da lista
+                            maioresConsumos.append(ultimoRegistro[i])
+                            if (len(maioresConsumos) == 10): break
+                    # maioresConsumos = lista com os 10 maiores hidrometros
+
+                    # TODO ordenar a lista de forma decrescente
+                    publish(client, f'nuvem/consumo/{client._client_id.decode()}', json.dumps(maioresConsumos))
                 case _:
                     print("Case default")
 
