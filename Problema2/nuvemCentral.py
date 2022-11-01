@@ -1,13 +1,19 @@
+import json
 import random
 from paho.mqtt import client as mqtt_client
 
+'''o banco de dados segue o padrão:
+nevoaDB = {
+    idNevoa: [{maiores consumos da nevoa}]
+}
+'''
 # banco de dados com os dados das nevoas
 nevoaDB = {}
 # conexáo mqtt com todas as nevoas
 nevoas = {
     'broker': 'localhost',      # mudar para maquina central do larsid
     'port': 1883,
-    'topicPub': "nuvem/",     
+    'topicPub': "nuvem",     
     'topicSub': "nuvem/#"
 }
 
@@ -32,6 +38,20 @@ def subscribe (client, topico):
     
     client.subscribe(topico)
     client.on_message = on_message
+
+def publish(client, topic, msg):
+    client.publish(topic, msg)
+
+def subMaioresConsumos (client):
+    def on_message(client, userdata, msg):
+        print(f'{msg.payload.decode()}')
+        idNevoa = msg.topic.split('/')[-1]
+        nevoaData = json.loads(msg.payload.decode())
+        nevoaDB[idNevoa] = nevoaData    #   uma lista com os maiores consumos
+    
+    client.subscribe(f'{nevoas["topicPub"]}/consumo/#')
+    client.on_message = on_message
+
 #   -------------------------------------------------------------------------
 
 #       funções de requisicoes para a névoa ---------------------------------

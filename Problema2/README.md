@@ -1,1 +1,1 @@
-<img src="https://github.com/danrleiaraujo/MI-Redes/tree/main/Problema2/images/diagrama.png"/>
+<img src="https://github.com/danrleiaraujo/MI-Redes/tree/main/Problema2/images/diagrama.jpg"/>
