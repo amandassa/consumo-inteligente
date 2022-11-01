@@ -6,11 +6,8 @@ A névoa:
 - publica para o servidor central as infos dos hidrometros
 - publica para os hidrometros a mensagem de bloqueio quando necessário
 '''
-from concurrent.futures import thread
-from itertools import count
 import random
 import time
-from traceback import print_tb
 from paho.mqtt import client as mqtt_client
 import json
 from threading import Thread
@@ -42,6 +39,7 @@ hidrometros = {
     'topicPub': "hidrometros/bloqueio",
     'topicSub': "hidrometros/status/#"
 }
+
 # valores globais ------------------------------------------------------------
 LIMITE_CONSUMO = 200
 
@@ -146,10 +144,11 @@ def pubMedia(client):
     while True:
         if (len(hidroDB.items())!=0):
             for k in hidroDB:
-                total += hidroDB.get(k).get('consumo')
+                total =+ hidroDB.get(k)[0].get('consumo')
             media = total / len(hidroDB.keys())
             # topico media : nuvem/media/:idnevoa
-            client.publish(f'{central["topicPub"]}/media/{client._client_id.decode()}', f'{media}')
+            print('Enviando media')
+            client.publish(f'{central["topicPub"]}media/{client._client_id.decode()}', f'{media}')
             time.sleep(5)
 
 def publishTest(client, topic):
@@ -170,9 +169,8 @@ def run():
     clientHidro = connect_mqtt(hidrometros['broker'], hidrometros['port'], 'h')
     clientHidro.loop_start()
     subscribe(clientHidro, hidrometros['topicSub'])
-    thread = Thread(pubMedia(clientCentral)).start()
-    publishTest(clientHidro, hidrometros['topicPub'])
-    # pubMedia(clientCentral)
+    thread = Thread(target=pubMedia, args=(clientCentral,))
+    thread.start()
 
 if __name__ == "__main__":
     run()
