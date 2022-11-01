@@ -16,13 +16,13 @@ from threading import Thread
 '''
 Hidrômetros neste nó (db)
 Cada hidrômetro será uma entry no dicionário seguindo:
-codigoH, 
+{codigoH, [
 {
     codigo: int, 
     consumo: int (em m3),
     data: time (timestamp),
     bloqueado: boolean
-}
+}]}
 '''
 hidroDB= {}
 
@@ -30,7 +30,7 @@ hidroDB= {}
 central = {
     'broker': 'localhost',      # mudar para maquina central do larsid
     'port': 1883,
-    'topicPub': "nuvem/",     # como gerar id para cada no criado?
+    'topicPub': "nuvem",     # como gerar id para cada no criado?
     'topicSub': "nuvem/#"
 }
 hidrometros = {
@@ -43,20 +43,7 @@ hidrometros = {
 # valores globais ------------------------------------------------------------
 LIMITE_CONSUMO = 200
 
-def connect_mqtt(broker, port, prefix):
-    def on_connect(client, userdata, flags, rc):
-        if rc == 0:
-            print("Connected to MQTT Broker!")
-        else:
-            print("Failed to connect, return code %d\n", rc)
-
-    client = mqtt_client.Client(f'{prefix}-{random.randint(0, 100)}')
-    # client.username_pw_set(username, password)
-    client.on_connect = on_connect
-    client.connect(broker, port)
-    
-    return client
-
+#       funcões de operações no banco de dados -------------------------------
 # Salva um novo status do hidrometro no DB
 # cliente é a instacia mqtt criada na conexão com o broker que se quer ouvir
 def salvarHidrometro(msg):     # o nó ouve do hidrometro
@@ -77,6 +64,40 @@ def ultimoRegistro(hidroDB):
     
     return ultimoRegistro
 
+# publica automaticamente sua media parcial para a nuvem 
+# (client: cliente da nuvem)
+def pubMedia(client):
+    total = 0
+    while True:
+        if (len(hidroDB.items())!=0):
+            for k in hidroDB:
+                total =+ hidroDB.get(k)[0].get('consumo')
+            media = total / len(hidroDB.keys())
+            # topico media : nuvem/media/:idnevoa
+            print('Enviando media')
+            client.publish(f'{central["topicPub"]}/media/{client._client_id.decode()}', f'{media}')
+            time.sleep(5)
+
+def pubTempoReal (client, idHidro):
+    if (idHidro != 'inexistente' & len(hidroDB[idHidro]) != 0):
+        medicaoMaisRecente = json.dumps(hidroDB[idHidro][0])
+        client.publish(client, f'{central["topicPub"]}/temporeal/{idHidro}', f'{medicaoMaisRecente}')
+
+
+#       funções de conectividade com a nuvem e hidrometros ----------------------------
+def connect_mqtt(broker, port, prefix):
+    def on_connect(client, userdata, flags, rc):
+        if rc == 0:
+            print("Connected to MQTT Broker!")
+        else:
+            print("Failed to connect, return code %d\n", rc)
+
+    client = mqtt_client.Client(f'{prefix}-{random.randint(0, 100)}')
+    # client.username_pw_set(username, password)
+    client.on_connect = on_connect
+    client.connect(broker, port)
+    
+    return client
 
 '''
 deve se inscrever no servidor central e no servidor dos hidrometros
@@ -122,34 +143,25 @@ def subscribe (client, topico):
                     # TODO ordenar a lista de forma decrescente
                     publish(client, f'{central["topicPub"]}/consumo/{client._client_id.decode()}', json.dumps(maioresConsumos))
                 case 'temporeal':
-                    # TODO
-                    # O nó se inscreve em um topico da nuvem de um hidrometro n
-                    # O nó passa a ecoar automaticamente todas as medições desse
-                    # Hidrometro para a nuvem
+                    try:
+                        idHidro = int(topico[-1])
+                    except:
+                        idHidro = 'inexistente'
+                    pubTempoReal(client, idHidro)
+                    # O nó passa a ecoar automaticamente todas as medições de
+                    # um determinado hidrometro n=param para a nuvem
                     print('Acompanha um hidrometro em tempo real')
                 case 'limiteconsumo':
-                    # TODO define um novo limite de consumo
-                    print('Atualiza a variável LIMITE_CONSUMO')
+                    try:
+                        LIMITE_CONSUMO = int(msg.payload.decode())
+                    except:
+                        pass
+                    print('Atualizada a variável LIMITE_CONSUMO')
                 case _:
                     print("Case default")
 
     client.subscribe(topico)
     client.on_message = on_message
-
-# publica automaticamente sua media parcial para a nuvem 
-# (client: cliente da nuvem)
-# esta funcao pode ser invocada numa thread para melhor desempenho
-def pubMedia(client):
-    total = 0
-    while True:
-        if (len(hidroDB.items())!=0):
-            for k in hidroDB:
-                total =+ hidroDB.get(k)[0].get('consumo')
-            media = total / len(hidroDB.keys())
-            # topico media : nuvem/media/:idnevoa
-            print('Enviando media')
-            client.publish(f'{central["topicPub"]}media/{client._client_id.decode()}', f'{media}')
-            time.sleep(5)
 
 def publishTest(client, topic):
     while True:
@@ -158,7 +170,8 @@ def publishTest(client, topic):
 
 def publish(client, topic, msg):
     client.publish(topic, msg)
-    
+#   -----------------------------------------------------------------------------
+
 def run():
     # conexões com nuvem    ------------------------------------------ 
     clientCentral = connect_mqtt(central['broker'], central['port'], 'n')
