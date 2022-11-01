@@ -8,6 +8,7 @@
     <title>Página Inicial</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'style.css')}}" rel= "stylesheet">
     <link rel="shortcut icon" href="{{ url_for('static', filename = 'gotas 1.svg')}}" type="image/x-icon">
+    <script type="text/javascript" src="{{ url_for('static', filename = 'script.js')}}"></script>
 </head>
 
 <body>
@@ -15,8 +16,8 @@
     <header class="cabecalho">
         <img class="iconeMI" src="{{ url_for('static', filename = 'gotas 1.svg')}}" alt="icone da MI-Concorrência e Conectividade">
         <nav class="linkCabecalho">
-            <a class="linkCabecalhoItem" href="">Início</a>
-            <a class="linkCabecalhoItem" href="">Entrar</a>
+            <a class="linkCabecalhoItem" href="/GET/">Início</a>
+            <a class="linkCabecalhoItem" href="/login">Sair</a>
         </nav>
     </header>
 
@@ -25,7 +26,7 @@
         <h1 class="titulo">Dados</h1>
         <div class="areaDaBusca">
             <div class="busca">
-                <form class="Busca" action="">
+                <form class="Busca" action="" method="post">
                     <h1 class="tituloConteudo">Busca</h1>
                     <div class="input-field">
                         <input type="text" name="hidrometro" id="hidrometro" placeholder="Digite a quantidade de hidrometros:">
@@ -36,7 +37,7 @@
                 </form>
             </div>
             <div class="resultado">
-                <table class="tabela">
+                <table class="tabela" id="tabela">
                     <thead class="topo">
                         <tr class="coluna">
                             <th class="linha1">Matricula</td>
@@ -44,14 +45,6 @@
                         </tr>
                     </thead>
                     <tbody class="corpo">
-                        <tr class="coluna">
-                            <td class="linha">11122266</td>
-                            <td class="linha">4 m³/s</td>
-                        </tr>
-                        <tr class="coluna">
-                            <td class="linha">179933</td>
-                            <td class="linha">4 m³/s</td>
-                        </tr>
                     </tbody>
                 </table>
             </div>

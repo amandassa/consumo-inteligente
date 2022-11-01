@@ -1,0 +1,12 @@
+[
+    {
+        "matricula": "19231786",
+        "statusConta": "pago",
+        "consumo": "7 m³s"
+    },
+    {
+        "matricula": "19111787",
+        "statusConta": "atrasado",
+        "consumo": "9 m³s"
+    }   
+]

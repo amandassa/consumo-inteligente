@@ -1,13 +1,13 @@
 [
-    {
-        "nome": "Danrlei Araujo",
+    {   
+        "nome": "danrlei",
         "matricula": 18211205,
         "senha": "1010"
     },
 
     {
-        "nome": "Sabrinna Pita",
+        "nome": "amanda",
         "matricula": 19211206,
-        "senha": "1212"
+        "senha": "1234"
     }
 ]
