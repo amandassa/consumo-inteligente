@@ -12,7 +12,6 @@
 </head>
 
 <body>
-
     <header class="cabecalho">
         <img class="iconeMI" src="{{ url_for('static', filename = 'gotas 1.svg')}}" alt="icone da MI-Concorrência e Conectividade">
         <nav class="linkCabecalho">
@@ -40,11 +39,22 @@
                 <table class="tabela" id="tabela">
                     <thead class="topo">
                         <tr class="coluna">
-                            <th class="linha1">Matricula</td>
-                            <th class="linha1">Consumo</td>
+                            <th class="linha1">Matricula</th>
+                            <th class="linha1">Status</th>
+                            <th class="linha1">Consumo</th>
                         </tr>
                     </thead>
                     <tbody class="corpo">
+                            <tr class="coluna">
+                                <td class="linha">{{listaHidro.0.matricula}}</td>
+                                <td class="linha">{{listaHidro.0.statusConta}}</td>
+                                <td class="linha">{{listaHidro.0.consumo}}</td>
+                            </tr> 
+                            <tr class="coluna">
+                                <td class="linha">{{listaHidro.1.matricula}}</td>
+                                <td class="linha">{{listaHidro.1.statusConta}}</td>
+                                <td class="linha">{{listaHidro.1.consumo}}</td>
+                            </tr>                             
                     </tbody>
                 </table>
             </div>
@@ -54,7 +64,8 @@
     <footer class="rodape">
         <img class="rodapeImagem" src="{{ url_for('static', filename = 'redes.svg')}}" alt="MI - Concorrência e Conectividade" height="40">
     </footer>
-
+<script type = "text/javascript">
+</script>
 </body>
 
 </html>
