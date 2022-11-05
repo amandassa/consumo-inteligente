@@ -29,7 +29,6 @@ def connect_mqtt(broker, port):
     # client.username_pw_set(username, password)
     client.on_connect = on_connect
     client.connect(broker, port)
-    
     return client
 
 def subscribe (client, topico):
@@ -67,7 +66,7 @@ def maiorConsumo(param):
 def tempoReal(param):
     print()
     # TODO
-    # Enviar uma mensagem para o topico nuvem/temporeal/:param
+    # Enviar uma mensagem (conteúdo: param) para o topico nuvem/temporeal
     # onde Param será o id do hidrometro que ele selecionou para ver.
     # a nevoa irá publicar em tempo real no topico desse hidrometro
     # a nuvem deve se inscrever e mandar os dados para a pagina web via websocket.
