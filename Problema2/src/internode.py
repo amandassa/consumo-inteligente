@@ -41,7 +41,7 @@ hidrometros = {
 }
 
 # valores globais ------------------------------------------------------------
-LIMITE_CONSUMO = 200
+LIMITE_CONSUMO = 100
 
 #       funcões de operações no banco de dados -------------------------------
 # Salva um novo status do hidrometro no DB
@@ -73,9 +73,10 @@ def pubMedia(client):
             for k in hidroDB:
                 total += hidroDB.get(k)[0].get('consumo')
             mediaNevoa = total / len(hidroDB.keys())
+            hidrolist = hidroDB.keys()
             msg = {
                 'media': mediaNevoa,
-                'hidrometros': hidroDB.keys()
+                'hidrometros': hidrolist
             }
             # topico media : nuvem/media/:idnevoa
             print('Enviando media')
@@ -86,6 +87,8 @@ def pubTempoReal (client, idHidro):
     if (idHidro != 'inexistente' & len(hidroDB[idHidro]) != 0):
         medicaoMaisRecente = json.dumps(hidroDB[idHidro][0])
         client.publish(client, f'{central["topicPub"]}/temporeal/{idHidro}', f'{medicaoMaisRecente}')
+    else:
+        client.publish(client, f'{central["topicPub"]}/temporeal/{client._client_id.decode()}', f'O Hidrometro solicitado não é valido')
 
 
 #       funções de conectividade com a nuvem e hidrometros ----------------------------
@@ -116,8 +119,13 @@ def subscribe (client, topico):
                 case 'status':
                     print(f'MENSAGEM DO HIDROMETRO\t{msg.payload.decode()}')
                     codigoH = salvarHidrometro(msg)
+                    global LIMITE_CONSUMO
                     if (hidroDB[codigoH][0]['consumo'] > LIMITE_CONSUMO):   # checa consumo + recente
-                        publish(client, f'{hidrometros["topicPub"]}/bloqueio/{codigoH}', '{"bloqueado":true}')
+                        dicio = {}
+                        dicio['bloqueado'] = True
+                        msg = json.dumps(dicio)
+                        publish(client, f'{hidrometros["topicPub"]}/{codigoH}', f'{msg}')
+                        print('bloqueado:true')
                 case _:
                     pass
         else:   # caso a mensagem venha da central
@@ -148,18 +156,18 @@ def subscribe (client, topico):
                     }
                     # TODO ordenar a lista de forma decrescente
                     publish(client, f'{central["topicPub"]}/consumo/{client._client_id.decode()}', json.dumps(msg))
-                case 'temporeal':
-                    try:
-                        idHidro = int(topico[-1])
-                    except:
-                        idHidro = 'inexistente'
-                    if (idHidro in hidroDB.keys()):
-                        pubTempoReal(client, idHidro)
-                    else:   # precaução já que a mensagem de temporeal da nuvem será enviada para a névoa que contém o hidrometro
-                        publish(client, 'nuvem/temporeal', f'Hidrometro {idHidro} não existe.')
-                    # O nó passa a ecoar automaticamente todas as medições de
-                    # um determinado hidrometro n=param para a nuvem
-                    print('Acompanha um hidrometro em tempo real')
+                # case 'temporeal':
+                #     try:
+                #         idHidro = int(topico[-1])
+                #     except:
+                #         idHidro = 'inexistente'
+                #     if (idHidro in hidroDB.keys()):
+                #         pubTempoReal(client, idHidro)
+                #     else:   # precaução já que a mensagem de temporeal da nuvem será enviada para a névoa que contém o hidrometro
+                #         publish(client, 'nuvem/temporeal', f'Hidrometro {idHidro} não existe.')
+                #     # O nó passa a ecoar automaticamente todas as medições de
+                #     # um determinado hidrometro n=param para a nuvem
+                #     print('Acompanha um hidrometro em tempo real')
 
                 case 'limiteconsumo':
                     try:
@@ -173,6 +181,26 @@ def subscribe (client, topico):
     client.subscribe(topico)
     client.on_message = on_message
 
+def subTemporeal(client):
+    def on_message(client, userdata, msg):
+        # topico = msg.topic.split('/')
+        try:
+            idHidro = int(msg.payload.decode())
+        except:
+            idHidro = 'inexistente'
+        if (idHidro in hidroDB.keys()):
+            pubTempoReal(client, idHidro)
+        else:
+            # publish(client, 'nuvem/temporeal', f'Hidrometro {idHidro} não existe.')
+            pass    # isso ocorre quando a mensagem que chega já é do consumo do hidrometro
+        # O nó passa a ecoar automaticamente todas as medições de
+        # um determinado hidrometro n=param para a nuvem
+        print('Acompanha um hidrometro em tempo real')
+    # se inscreve no topico exclusivo para esta nevoa
+    client.subscribe(f'{central["topicPub"]}/temporeal/{client._client_id.decode()}')
+    client.on_message = on_message
+
+        
 def publishTest(client, topic):
     while True:
         client.publish(topic, f'\t{client._client_id.decode()}')
@@ -186,6 +214,7 @@ def run():
     # conexões com nuvem    ------------------------------------------ 
     clientCentral = connect_mqtt(central['broker'], central['port'], 'n')
     clientCentral.loop_start()
+    subTemporeal(clientCentral)
     subscribe(clientCentral, central['topicSub'])
     # conexões com hidrometros    ------------------------------------ 
     time.sleep(2)

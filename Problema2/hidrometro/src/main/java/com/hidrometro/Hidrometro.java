@@ -26,6 +26,7 @@ public class Hidrometro extends Thread {
 	private int consumo;
 	private boolean bloqueado;
 	private String dataHora;
+	private DateTimeFormatter dtf;
 
 	private ClienteMQTT mqtt;
 	private String SUB_TOPIC;
@@ -38,9 +39,9 @@ public class Hidrometro extends Thread {
 		this.consumo = 0;
 		this.bloqueado = false;
 		this.pressao = vazao;
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
-        LocalDateTime now = LocalDateTime.now();
-        this.dataHora = dtf.format(now);
+		this.dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
+        // LocalDateTime now = LocalDateTime.now();
+        // this.dataHora = dtf.format(now);
 
 		this.mqtt = new ClienteMQTT(NEVOA, null, null);
         this.mqtt.iniciar();
@@ -50,7 +51,7 @@ public class Hidrometro extends Thread {
 		this.start();
 	}
 	public static void main (String [] args) {
-		Hidrometro h1 = new Hidrometro(new Random().nextInt(20), new Random().nextInt(10));
+		Hidrometro h1 = new Hidrometro(new Random().nextInt(20), new Random().nextInt(1,10));
 	}
 	
 	/**
@@ -70,7 +71,7 @@ public class Hidrometro extends Thread {
 			}
 			
 			jsonObj.put("consumo", this.consumo);
-			jsonObj.put("data", this.dataHora);
+			jsonObj.put("data", this.dtf.format(LocalDateTime.now()));
 			jsonObj.put("bloqueado", this.bloqueado);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -121,7 +122,7 @@ public class Hidrometro extends Thread {
 	 */
 	@Override
 	public void run () {
-		Thread escutar = new Thread(() -> escutar());
+		Thread escutar = new Thread(this::escutar);
 		// Thread simular = new Thread(() -> simulador());
 		try { 
 			while (true) {
@@ -187,7 +188,7 @@ public class Hidrometro extends Thread {
 			System.out.println("\tMensagem: " + new String(mm.getPayload()));
 			System.out.println("");
 			try {
-				JSONObject jObject = new JSONObject(mm);
+				JSONObject jObject = new JSONObject(new String(mm.getPayload()));
 
 				if (jObject.get("bloqueado").equals(true)) {
 					setBloqueado(true);
