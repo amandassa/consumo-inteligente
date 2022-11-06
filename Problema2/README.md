@@ -8,6 +8,8 @@
  <a href="#restricoes">Restrições</a> •
  <a href="#solucao">Solução</a> •
  <a href="#modulos">Módulos</a> •
+ <a href="#deploy">Deploy e Demonstração</a> •
+ <a href="#final">Considerações finais</a>
 </p>
 
 <h2 href="#objetivo">Objetivo</h2>
@@ -21,11 +23,14 @@
 
 - Hidrômetro:
     - [Java 11](https://www.oracle.com/br/java/technologies/javase/jdk11-archive-downloads.html)
-- Rede:
-    - [MQTT](https://mqtt.org/)
+- Servidores:
     - [Python 3.10](https://www.python.org/)
+- Conectividade:
+    - [MQTT](https://mqtt.org/)
 - API Rest:
     - [Flask](https://flask.palletsprojects.com/en/2.2.x/)
+- Deploy e teste:
+    - [Docker](https://www.docker.com/)
 
 <h2 href="#restricoes">Restrições</h2>
 
@@ -49,11 +54,11 @@
 <p>Os nós da névoa estabelecem uma conexão entre um grupo de hidrômetros e a nuvem central, filtrando os dados de interesse da nuvem para enviá-los posteriormente. A névoa realiza o cálculo de sua média de consumo e a busca dos hidrômetros que mais consomem na região, além de transmitir aos seus hidrômetros as requisições mais críticas da nuvem, de bloqueio por exemplo.</p>
 
 <h3>Nuvem</h3>
-<p>A nuvem estabelece conexão com todos os nós da névoa, escutando e enviando requisições. Na nuvem, as solicitações de operações da API são enviadas e recebidas. Os identificadores das névoas são mantidos de forma a permitir o acesso rápido à região/hidrômetro solicitado pelo usuário, evitando que todas as névoas recebam a mesma requisição em que apenas uma deve responder.</p>
+<p>A nuvem estabelece conexão com todos os nós da névoa, escutando e enviando requisições. Na nuvem, as solicitações de operações da API são enviadas e recebidas. Os identificadores das névoas são mantidos armazenados de forma a permitir o acesso rápido à região do hidrômetro solicitado pelo usuário, evitando que todas as névoas recebam a mesma requisição em que apenas uma deve responder.</p>
 
 <h3>Conexão MQTT</h3>
 <p>O padrão de comunicação MQTT foi utilizado nesta solução devido a sua extensa aplicação na Internet das Coisas (IoT) e sua capacidade de estabelecer uma comunicação facilitada numa rede segura.</p>
-<p>A conectividade do sistema é baseada em 2 pontos de Brokers MQTT, um dedicado à comunicação Nuvem-Nós e outro responsável pela comunicação Nós-Hidrômetro. Cada categoria de Broker presente no sistema e os tópicos utilizados são listados abaixo:</p>
+<p>A conectividade do sistema é baseada em 2 pontos de Brokers MQTT, um dedicado à comunicação Nuvem-Nós (apenas um broker) e outro responsável pela comunicação Nó-Hidrômetros (um broker por nó). Cada categoria de Broker presente no sistema e os tópicos utilizados são listados abaixo:</p>
 
 <b>Broker Nuvem-Nós:   nuvem/</b>
 <ul>

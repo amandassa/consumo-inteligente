@@ -71,11 +71,15 @@ def pubMedia(client):
     while True:
         if (len(hidroDB.items())!=0):
             for k in hidroDB:
-                total =+ hidroDB.get(k)[0].get('consumo')
-            media = total / len(hidroDB.keys())
+                total += hidroDB.get(k)[0].get('consumo')
+            mediaNevoa = total / len(hidroDB.keys())
+            msg = {
+                'media': mediaNevoa,
+                'hidrometros': hidroDB.keys()
+            }
             # topico media : nuvem/media/:idnevoa
             print('Enviando media')
-            client.publish(f'{central["topicPub"]}/media/{client._client_id.decode()}', f'{media}')
+            client.publish(f'{central["topicPub"]}/media/{client._client_id.decode()}', f'{msg}')
             time.sleep(5)
 
 def pubTempoReal (client, idHidro):
@@ -139,18 +143,24 @@ def subscribe (client, topico):
                             # a seleção dos hidrometros que mais consomem é proporcional a 30% do total
                             if (len(maioresConsumos) >= top_n): break
                     # maioresConsumos = lista com os 10 maiores hidrometros
-
+                    msg = {
+                        'maiores': maioresConsumos
+                    }
                     # TODO ordenar a lista de forma decrescente
-                    publish(client, f'{central["topicPub"]}/consumo/{client._client_id.decode()}', json.dumps(maioresConsumos))
+                    publish(client, f'{central["topicPub"]}/consumo/{client._client_id.decode()}', json.dumps(msg))
                 case 'temporeal':
                     try:
                         idHidro = int(topico[-1])
                     except:
                         idHidro = 'inexistente'
-                    pubTempoReal(client, idHidro)
+                    if (idHidro in hidroDB.keys()):
+                        pubTempoReal(client, idHidro)
+                    else:   # precaução já que a mensagem de temporeal da nuvem será enviada para a névoa que contém o hidrometro
+                        publish(client, 'nuvem/temporeal', f'Hidrometro {idHidro} não existe.')
                     # O nó passa a ecoar automaticamente todas as medições de
                     # um determinado hidrometro n=param para a nuvem
                     print('Acompanha um hidrometro em tempo real')
+
                 case 'limiteconsumo':
                     try:
                         LIMITE_CONSUMO = int(msg.payload.decode())
