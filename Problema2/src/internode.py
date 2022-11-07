@@ -68,12 +68,12 @@ def ultimoRegistro(hidroDB):
 # publica automaticamente sua media parcial para a nuvem 
 # (client: cliente da nuvem)
 def pubMedia(client):
-    total = 0
     while True:
+        total = 0
         if (len(hidroDB.items())!=0):
             for k in hidroDB:
                 total += hidroDB.get(k)[0].get('consumo')
-            mediaNevoa = total / len(hidroDB.keys())
+            mediaNevoa = total // len(hidroDB.keys())
 
             global MEDIA_NEVOA
             MEDIA_NEVOA = mediaNevoa
