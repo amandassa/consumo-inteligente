@@ -1,5 +1,6 @@
 import json
 import random
+import time
 from paho.mqtt import client as mqtt_client
 
 '''o banco de dados segue o padrão:
@@ -36,10 +37,24 @@ def connect_mqtt(broker, port):
     
     return client
 
+clientNevoa = connect_mqtt(nevoas['broker'], nevoas['port'])
+
 def subscribe (client, topico):
     def on_message(client, userdata, msg):
         topico = msg.topic.split('/')
-        if (topico[1] != 'temporeal'): salvarNo(msg)
+        match (topico[1]):
+            case 'media':
+                salvarNo(msg)
+            case 'consumo':
+                if (topico[-1] not in nevoaDB.keys()):
+                    pass
+                else:
+                    # lista com os maiores hidrometros daquela nevoa
+                    nevoaData = json.loads(msg.payload.decode())
+                    nevoaDB[topico[-1]] = nevoaData    #   uma lista com os maiores consumos
+            case _:
+                pass
+
         print(f'{msg.payload.decode()}')
     
     client.subscribe(topico)
@@ -70,26 +85,27 @@ def subMaioresConsumos (client):
 
 #       funções de requisicoes para a névoa ---------------------------------
 def maiorConsumo(param):
-    print()
-    # TODO
+    global clientNevoa
     # A nuvem irá enviar uma mensagem para o topico nuvem/consumo
     # contendo o valor n=param referente a quantidade max de hidrometros 
     # na lista de maiores consumidores que ela quer ver.
+    publish(clientNevoa,f'{nevoas["topicPub"]}/consumo', f'{param}')
+    time.sleep(5)
     # como resposta a nevoa retorna a lista em json dos maiores hidrometros.
-    # da nuvem central a lista deve ir para uma pagina web 
+    # da nuvem central a lista deve ir para uma pagina web
 
 def tempoReal(param):
     print()
     # TODO
-    # Enviar uma mensagem (conteúdo: param) para o topico nuvem/temporeal
+    # Enviar uma mensagem (conteúdo: param) para o topico nuvem/temporeal/nevoaquecontemohidrometro
     # onde Param será o id do hidrometro que ele selecionou para ver.
-    # a nevoa irá publicar em tempo real nesse topico (temporeal/idHidro) da nuvem
+    # a nevoa irá publicar em tempo real nesse topico (nuvem/status/idHidro) da nuvem
     # a nuvem deve se inscrever e mandar os dados para a pagina web via websocket.
 
 #   -----------------------------------------------------------------------------
 
 def run ():
-    clientNevoa = connect_mqtt(nevoas['broker'], nevoas['port'])
+    global clientNevoa
     subscribe(clientNevoa, nevoas['topicSub'])
 
 if __name__ == "__main__":

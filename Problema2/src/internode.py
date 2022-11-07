@@ -42,6 +42,7 @@ hidrometros = {
 
 # valores globais ------------------------------------------------------------
 LIMITE_CONSUMO = 100
+MEDIA_NEVOA = 0
 
 #       funcões de operações no banco de dados -------------------------------
 # Salva um novo status do hidrometro no DB
@@ -49,7 +50,7 @@ LIMITE_CONSUMO = 100
 def salvarHidrometro(msg):     # o nó ouve do hidrometro
     codigoH = msg.topic.split('/')[-1]  # o codigo do hidrometro está no subtopico
     hidroData = json.loads(msg.payload.decode())     # converte a mensagem do hidrômetro em um dicionário
-    if codigoH in hidroDB.keys():
+    if (codigoH in hidroDB.keys()):
         hidroDB[codigoH].insert(0, hidroData)
     else:
         hidroDB[codigoH] = [hidroData]
@@ -62,7 +63,7 @@ def ultimoRegistro(hidroDB):
     # pegar o registro mais recente (indice 0) de cada um deles -- cada registro é um dicionario
         ultimoRegistro.append(hidroDB[k][0])
     
-    return ultimoRegistro
+    return ultimoRegistro   # lista de dicionarios
 
 # publica automaticamente sua media parcial para a nuvem 
 # (client: cliente da nuvem)
@@ -73,6 +74,10 @@ def pubMedia(client):
             for k in hidroDB:
                 total += hidroDB.get(k)[0].get('consumo')
             mediaNevoa = total / len(hidroDB.keys())
+
+            global MEDIA_NEVOA
+            MEDIA_NEVOA = mediaNevoa
+
             hidrolist = hidroDB.keys()
             msg = {
                 'media': mediaNevoa,
@@ -84,12 +89,13 @@ def pubMedia(client):
             time.sleep(5)
 
 def pubTempoReal (client, idHidro):
-    if (idHidro != 'inexistente' & len(hidroDB[idHidro]) != 0):
-        medicaoMaisRecente = json.dumps(hidroDB[idHidro][0])
-        client.publish(client, f'{central["topicPub"]}/temporeal/{idHidro}', f'{medicaoMaisRecente}')
-    else:
-        client.publish(client, f'{central["topicPub"]}/temporeal/{client._client_id.decode()}', f'O Hidrometro solicitado não é valido')
-
+    # lista = hidroDB[idHidro]
+    # # pega apenas as 10 ultimas medicoes
+    # historico = [it for it in lista if lista.index(it) < 10]
+    # medicaoMaisRecente = json.dumps(historico)
+    while True:
+        client.publish(f'{central["topicPub"]}/status/{idHidro}', f'{hidroDB[idHidro][0]}')
+        sleep(5)
 
 #       funções de conectividade com a nuvem e hidrometros ----------------------------
 def connect_mqtt(broker, port, prefix):
@@ -120,54 +126,61 @@ def subscribe (client, topico):
                     print(f'MENSAGEM DO HIDROMETRO\t{msg.payload.decode()}')
                     codigoH = salvarHidrometro(msg)
                     global LIMITE_CONSUMO
-                    if (hidroDB[codigoH][0]['consumo'] > LIMITE_CONSUMO):   # checa consumo + recente
+                    consumoAtual = hidroDB[codigoH][0]['consumo']
+                    if ((consumoAtual > LIMITE_CONSUMO) or
+                     (consumoAtual > MEDIA_NEVOA)):   # checa consumo + recente
                         dicio = {}
                         dicio['bloqueado'] = True
                         msg = json.dumps(dicio)
                         publish(client, f'{hidrometros["topicPub"]}/{codigoH}', f'{msg}')
-                        print('bloqueado:true')
                 case _:
                     pass
         else:   # caso a mensagem venha da central
             match topico[1]:    
                 case 'consumo':
-                    # A nuvem irá enviar uma mensagem para o topico central/consumo
-                    # contendo o valor n referente a quantidade max de hidrometros 
-                    # na lista de maiores consumidores.
-                    s = msg.payload.decode('utf-8')
+                    if (topico[-1] != 'consumo'):
+                        pass
+                    else:
+                        # A nuvem irá enviar uma mensagem para o topico central/consumo
+                        # contendo o valor n referente a quantidade max de hidrometros 
+                        # na lista de maiores consumidores.
+                        s = msg.payload.decode('utf-8')
+                        try:
+                            top_n = int(s)
+                        except:
+                            top_n = (len(hidroDB.keys())*0.3)
+                        
+                        lista = ultimoRegistro(hidroDB)
+                        # ordenar todos os items
+                        ordenada = sorted(lista, key=lambda d: d['consumo'], reverse=True)
+                        #pegar n maiores
+                        maiores = [it for it in ordenada if ordenada.index(it) < top_n]
+
+                        msg = {
+                            'maiores': maiores
+                        }
+
+                        # nuvem/consumo/idNevoa : { maiores = [] }
+                        client.publish(f'{central["topicPub"]}/consumo/{client._client_id.decode()}', json.dumps(msg))
+                        # t = Thread(target=publish,args=(client, f'{central["topicPub"]}/consumo/{client._client_id.decode()}', json.dumps(msg)))
+                        # t.start()
+                
+                case 'temporeal':
                     try:
-                        top_n = int(s)
+                        idHidro = msg.payload.decode()
                     except:
-                        top_n = (len(hidroDB.keys())*0.3)
-                    # deve enviar a lista com os 10 hidrometros de maior consumo daquele nó
-                    ultimoRegistro = ultimoRegistro(hidroDB)
-                    maiorConsumo = ultimoRegistro[0]['consumo']
-                    maioresConsumos = []
-                    for i in ultimoRegistro:
-                        if ultimoRegistro[i]['consumo'] > maiorConsumo:
-                            maiorConsumo = ultimoRegistro[i]['consumo']
-                            # selecionar apenas os n registros com maior consumo da lista
-                            maioresConsumos.append(ultimoRegistro[i])
-                            # a seleção dos hidrometros que mais consomem é proporcional a 30% do total
-                            if (len(maioresConsumos) >= top_n): break
-                    # maioresConsumos = lista com os 10 maiores hidrometros
-                    msg = {
-                        'maiores': maioresConsumos
-                    }
-                    # TODO ordenar a lista de forma decrescente
-                    publish(client, f'{central["topicPub"]}/consumo/{client._client_id.decode()}', json.dumps(msg))
-                # case 'temporeal':
-                #     try:
-                #         idHidro = int(topico[-1])
-                #     except:
-                #         idHidro = 'inexistente'
-                #     if (idHidro in hidroDB.keys()):
-                #         pubTempoReal(client, idHidro)
-                #     else:   # precaução já que a mensagem de temporeal da nuvem será enviada para a névoa que contém o hidrometro
-                #         publish(client, 'nuvem/temporeal', f'Hidrometro {idHidro} não existe.')
-                #     # O nó passa a ecoar automaticamente todas as medições de
-                #     # um determinado hidrometro n=param para a nuvem
-                #     print('Acompanha um hidrometro em tempo real')
+                        idHidro = 'inexistente'
+
+                    if (idHidro not in hidroDB.keys()):
+                        publish(client, 'nuvem/status', f'{idHidro} não existe.')
+                    else:  
+                        # while ((msg.topic != f'nuvem/temporeal/{client._client_id.decode()}')&(msg.payload.decode() != 'stop')):
+                            # pubTempoReal(client, idHidro)
+                        thread = Thread(target=pubTempoReal, args=(client, idHidro))
+                        thread.start()
+                    # O nó passa a ecoar automaticamente todas as medições de
+                    # um determinado hidrometro n=param para a nuvem
+                    print('Acompanha um hidrometro em tempo real')
 
                 case 'limiteconsumo':
                     try:
@@ -176,29 +189,29 @@ def subscribe (client, topico):
                         pass
                     print('Atualizada a variável LIMITE_CONSUMO')
                 case _:
-                    print("Case default")
+                    pass
 
     client.subscribe(topico)
     client.on_message = on_message
 
-def subTemporeal(client):
-    def on_message(client, userdata, msg):
-        # topico = msg.topic.split('/')
-        try:
-            idHidro = int(msg.payload.decode())
-        except:
-            idHidro = 'inexistente'
-        if (idHidro in hidroDB.keys()):
-            pubTempoReal(client, idHidro)
-        else:
-            # publish(client, 'nuvem/temporeal', f'Hidrometro {idHidro} não existe.')
-            pass    # isso ocorre quando a mensagem que chega já é do consumo do hidrometro
-        # O nó passa a ecoar automaticamente todas as medições de
-        # um determinado hidrometro n=param para a nuvem
-        print('Acompanha um hidrometro em tempo real')
-    # se inscreve no topico exclusivo para esta nevoa
-    client.subscribe(f'{central["topicPub"]}/temporeal/{client._client_id.decode()}')
-    client.on_message = on_message
+# def subTemporeal(client):
+#     def on_message(client, userdata, msg):
+#         # topico = msg.topic.split('/')
+#         try:
+#             idHidro = int(msg.payload.decode())
+#         except:
+#             idHidro = 'inexistente'
+#         if (idHidro in hidroDB.keys()):
+#             pubTempoReal(client, idHidro)
+#         else:
+#             # publish(client, 'nuvem/temporeal', f'Hidrometro {idHidro} não existe.')
+#             pass    # isso ocorre quando a mensagem que chega já é do consumo do hidrometro
+#         # O nó passa a ecoar automaticamente todas as medições de
+#         # um determinado hidrometro n=param para a nuvem
+#         print('Acompanha um hidrometro em tempo real')
+#     # se inscreve no topico exclusivo para esta nevoa ###########################################
+#     client.subscribe(f'{central["topicPub"]}/temporeal/{client._client_id.decode()}')
+#     client.on_message = on_message
 
         
 def publishTest(client, topic):
@@ -214,7 +227,7 @@ def run():
     # conexões com nuvem    ------------------------------------------ 
     clientCentral = connect_mqtt(central['broker'], central['port'], 'n')
     clientCentral.loop_start()
-    subTemporeal(clientCentral)
+    # subTemporeal(clientCentral)
     subscribe(clientCentral, central['topicSub'])
     # conexões com hidrometros    ------------------------------------ 
     time.sleep(2)
