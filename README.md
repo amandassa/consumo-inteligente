@@ -7,9 +7,7 @@
  <a href="#tecnologias">Tecnologias</a> • 
  <a href="#restricoes">Restrições</a> •
  <a href="#solucao">Solução</a> •
- <a href="#modulos">Módulos</a> •
- <a href="#deploy">Deploy e Demonstração</a> •
- <a href="#final">Considerações finais</a>
+ <a href="#modulos">Módulos</a> 
 </p>
 
 <h2 href="#objetivo">Objetivo</h2>
@@ -29,7 +27,7 @@
     - [MQTT](https://mqtt.org/)
 - API Rest:
     - [Flask](https://flask.palletsprojects.com/en/2.2.x/)
-- Deploy e teste:
+- Deploy:
     - [Docker](https://www.docker.com/)
 
 <h2 href="#restricoes">Restrições</h2>
@@ -38,14 +36,14 @@
 - Entre os hidrômetros listados deve permitir selecionar um deles para visualizar os dados com o menor tempo de latência possível.
 - O produto deve ser desenvolvido através de contêineres Docker.
 
-<h2 href="solucao">Solução</h2>
+<h2 href="#solucao">Solução</h2>
 
 <p>O Hidrômetro Inteligente é uma proposta para cidades inteligentes que querem cada vez mais oferecer automação e conectividade a seus residentes. Um dos problemas com a versão anterior era a latência causada pela centralização do processamento de dados na nuvem, o que prejudica o desempenho e limita a capacidade do sistema impedindo-o de atender à demanda de uma cidade muito populosa.</p>
 <p>Como solução para este problema, este novo protótipo implementa a abordagem de Computação de borda (Edge Computing) de processamento descentralizado, seguindo as últimas tendências no mundo da Internet das Coisas (IoT).</p>
 <p>Este modelo baseia-se na transferência de parte do processamento para os nós intermediários da névoa, que estão mais próximo de onde os dados são gerados. Isso permite uma latência menor nos endpoints acessados pela nuvem pois o volume de dados processados por cada operação na nuvem diminui drasticamente uma vez que a maior parte do trabalho já foi realizada antes mesmo dos dados chegarem lá.</p>
 <p>Dessa forma, buscas e ordenações em grandes volumes de dados são evitados e as responsabilidades do servidor central são reduzidas, o que consequentemente permite obter o maior desempenho nas respostas da nuvem para a aplicação do usuário.</p>
 
-<h2 href="modulos">Módulos do Sistema</h2>
+<h2 href="#modulos">Módulos do Sistema</h2>
 
 <h3>Hidrômetro</h3>
 <p>Como geradores de dados do sistema, cada hidrômetro é conectado ao nó da névoa correspondente à região da cidade onde foi instalado. Os hidrômetros enviam, além de seus campos identificadores, o consumo da residência em metros cúbicos e o horário de cada medição para a névoa mais próxima.</p>
