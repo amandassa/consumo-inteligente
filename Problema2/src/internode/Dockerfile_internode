@@ -1,0 +1,12 @@
+FROM python:latest
+
+ADD internode.py /internode/
+
+EXPOSE 1883
+EXPOSE 1884
+
+WORKDIR /internode/
+
+RUN pip install paho-mqtt
+
+CMD ["python3", "/internode/internode.py"]

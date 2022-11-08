@@ -1,0 +1,11 @@
+FROM python:latest
+
+ADD nuvemCentral.py /nuvem/
+
+EXPOSE 1883
+
+WORKDIR /nuvem/
+
+RUN pip install paho-mqtt
+
+CMD ["python3", "/nuvem/nuvem.py"]
