@@ -17,7 +17,7 @@
 
 <h2 href="#diagrama">Diagrama da infraestrutura</h2>
 
-<img src="https://github.com/danrleiaraujo/MI-Redes/blob/main/Problema2/images/diagrama.jpg"/>
+<img src="https://github.com/amandassa/consumo-inteligente/blob/main/images/diagrama.jpg"/>
 
 <h2 href="#tecnologias">Tecnologias</h2>
 
