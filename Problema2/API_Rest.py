@@ -48,19 +48,15 @@ def pagWeb():
 def hidrometros():
     #Recebe a quantidade de hidrometros:
     hidrometro = request.form.get('hidrometro')
-    print(type(hidrometro))
+    try:
+        qtdhidrometro = int(hidrometro)
+    except:
+        qtdhidrometro = 0;
+    print(qtdhidrometro)
     #FALTA A PARTE DE MOSTRAR OS HIDROMETROS: 
     with open('C:/Users/danrl/Desktop/MI-Redes/MI-Redes/Problema2/hidrometrosTeste.json') as hidrometrosTeste:
         listaHidro = json.load(hidrometrosTeste)
-        i= int()
-        a= str()
-        for c in listaHidro: 
-            if a == hidrometro:
-                return render_template ('hidrometros.html', c = c)
-            else:
-                i =+ 1;
-                a = str(i)
-        return render_template ('hidrometros.html', listaHidro = listaHidro)
+    return render_template ('hidrometros.html', listaHidro = listaHidro, qtdhidrometro = qtdhidrometro )
     
 # ---------------------------------------
 @app.route("/GET/<param>",  methods = ['GET'])   #requisicao para obter n hidrometros de maior consumo
@@ -71,5 +67,4 @@ def maiorConsumo(param):
     return f'{param}'
 
 
-if __name__ == "__main__":
-    app.run(debug=True)
+app.run(debug=True)
