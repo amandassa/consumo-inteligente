@@ -66,6 +66,8 @@
     </li>
     <li>nuvem/consumo/[idNevoa] : <p>A nuvem solicita N hidrômetros e cada névoa envia sua lista com N hidrômetros que mais consomem por este subtópico. Caso seja um número inválido, a lista conterá 30% dos hidrômetros do nó solicitado.</p>
     </li>
+    <li>nuvem/limiteconsumo : <p>Onde é enviada a mensagem com o novo limite a ser definido.</p>
+    </li>
 </ul>
 
 <b>Brokers Nós-Hidrômetros:   hidrometros/</b>
